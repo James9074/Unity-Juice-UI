@@ -34,12 +34,15 @@ public enum FadeType{
 public class Juice : MonoBehaviour {
     public static Juice Instance;
     public List<System.Action> mCallbacks;
-    
+
+    [SerializeField]
+    private List<Component> mComponents;
 
     void Awake()
     {
         Instance = this;
         mCallbacks = new List<System.Action>();
+        mComponents = new List<Component>();
     }
 
     void Update()
@@ -62,8 +65,10 @@ public class Juice : MonoBehaviour {
     /// <param name="aTime">The time it should take to complete</param>
     /// <param name="aDistance">A distance: Vector2(width,height)</param>
     /// <param name="aTweenType">The type of tween (Linear, Exponential, Etc)</param>
-	public Coroutine Tween(RectTransform aRect, float aTime, Vector2 aDistance, TweenType aTweenType = TweenType.Linear, System.Action aCallback = null){
-		switch (aTweenType) {
+	public void Tween(RectTransform aRect, float aTime, Vector2 aDistance, TweenType aTweenType = TweenType.Linear, System.Action aCallback = null){
+        if (!RegisterObject(aRect))
+            return;
+        switch (aTweenType) {
 		case TweenType.Linear:
             StartCoroutine(CoLinearTween(aRect, aTime, aDistance, aCallback));
 			break;
@@ -88,19 +93,8 @@ public class Juice : MonoBehaviour {
             Debug.LogWarning("TweenType " + aTweenType.ToString() + " isn't implemented yet!");
 			break;
 		}
-        return null;
+        return;
 	}
-
-	/// <summary>
-	/// Fades a CanvasGroup in and then back out.
-	/// </summary>
-	/// <param name="aGroup">The CanvasGroup</param>
-    /// <param name="aTime">The time each part of the fade (fading in and fading out) should take.</param>
-    /// <param name="aStayTime">How long should the object stay visible before fading back out?</param>
-    public void FadeGroupInOut(CanvasGroup aGroup, float aTime, float aStayTime = 0, System.Action aCallback = null)
-    {
-        StartCoroutine(CoFadeGroupInOut(aGroup,aTime,false,aStayTime, aCallback));
-    }
 
     /// <summary>
     /// Fades a CanvasGroup to a target alpha.
@@ -108,7 +102,10 @@ public class Juice : MonoBehaviour {
     /// <param name="aGroup">The CanvasGroup</param>
     /// <param name="aTime">The time it should take</param>
     /// <param name="aTarget">The end alpha</param>
+    /// <param name="aScaledTime">Should this be scaled with Time.TimeScale?</param>
+    /// <param name="aCallback">Any logic to execute once the target state is reached</param>
     public void FadeGroup(CanvasGroup aGroup, float aTime, float aTarget, bool aScaledTime = true, System.Action aCallback = null){
+        if (!RegisterObject(aGroup)) return;
         StartCoroutine(CoFadeGroup(aGroup, aTime, aTarget, aScaledTime, aCallback: aCallback));
     }
 
@@ -117,9 +114,11 @@ public class Juice : MonoBehaviour {
     /// </summary>
     /// <param name="aGroup">The CanvasGroup</param>
     /// <param name="aTime">The time it should take</param>
-    public void FadeOutGroup(CanvasGroup aGroup, float aTime)
+    /// <param name="aScaledTime">Should this be scaled with Time.TimeScale?</param>
+    /// <param name="aCallback">Any logic to execute once the target state is reached</param>
+    public void FadeOutGroup(CanvasGroup aGroup, float aTime, bool aScaledTime = true, System.Action aCallback = null)
     {
-        StartCoroutine(CoFadeGroup(aGroup, aTime, 0));
+        FadeGroup(aGroup, aTime, 0, aScaledTime, aCallback);
     }
 
     /// <summary>
@@ -127,9 +126,12 @@ public class Juice : MonoBehaviour {
     /// </summary>
     /// <param name="aGroup">The CanvasGroup</param>
     /// <param name="aTime">The time it should take</param>
-    public void FadeInGroup(CanvasGroup aGroup, float aTime)
+    /// <param name="aScaledTime">Should this be scaled with Time.TimeScale?</param>
+    /// <param name="aCallback">Any logic to execute once the target state is reached</param>
+    public void FadeInGroup(CanvasGroup aGroup, float aTime, bool aScaledTime = true, System.Action aCallback = null)
     {
-        StartCoroutine(CoFadeGroup(aGroup, aTime, 1));
+        if (!RegisterObject(aGroup)) return;
+        FadeGroup(aGroup, aTime, 1, aScaledTime, aCallback);
     }
 
     /// <summary>
@@ -142,7 +144,8 @@ public class Juice : MonoBehaviour {
     /// <param name="aUp"></param>
     /// <param name="aTime">How long do we pulse for?</param>
 	public void PulseGroup(CanvasGroup aGroup, float aRepeatTime, float aLowAlpha, float aHighAlpha, bool aUp = true, float aTime = 0){
-		aLowAlpha = aLowAlpha < 0f ? 0f : (aLowAlpha > 1f ? 1f : aLowAlpha);
+        if (!RegisterObject(aGroup)) return;
+        aLowAlpha = aLowAlpha < 0f ? 0f : (aLowAlpha > 1f ? 1f : aLowAlpha);
 		aHighAlpha = aHighAlpha < 0f ? 0f : (aHighAlpha > 1f ? 1f : aHighAlpha);
 		StartCoroutine(CoPulseGroup(aGroup, aRepeatTime, aLowAlpha, aHighAlpha, aUp, aTime < 0f ? 0f : aTime));
 	}
@@ -161,6 +164,7 @@ public class Juice : MonoBehaviour {
     /// <param name="aTarget">The end alpha</param>
     public void FadeSprite(SpriteRenderer aSprite, float aTime, float aTarget, bool aScaledTime = true, System.Action aCallback = null)
     {
+        if (!RegisterObject(aSprite)) return;
         StartCoroutine(CoFadeSprite(aSprite, aTime, aTarget, aScaledTime, aCallback: aCallback));
     }
 
@@ -171,6 +175,7 @@ public class Juice : MonoBehaviour {
     /// <param name="aTime">The time it should take</param>
     public void FadeOutSprite(SpriteRenderer aSprite, float aTime, System.Action aCallback = null)
     {
+        if (!RegisterObject(aSprite)) return;
         StartCoroutine(CoFadeSprite(aSprite, aTime, 0, true, aCallback));
     }
 
@@ -181,6 +186,7 @@ public class Juice : MonoBehaviour {
     /// <param name="aTime">The time it should take</param>
     public void FadeInSprite(SpriteRenderer aSprite, float aTime)
     {
+        if (!RegisterObject(aSprite)) return;
         StartCoroutine(CoFadeSprite(aSprite, aTime, 1));
     }
 
@@ -194,6 +200,7 @@ public class Juice : MonoBehaviour {
     /// <param name="aCallback">Now what?</param>
     public void LerpSpriteColor(SpriteRenderer aSprite, float aTime, Color aTarget, bool aScaledTime = true, System.Action aCallback = null)
     {
+        if (!RegisterObject(aSprite)) return;
         StartCoroutine(CoLerpSpriteColor(aSprite, aTime, aTarget, aScaledTime, aCallback: aCallback));
     }
     #endregion
@@ -204,16 +211,22 @@ public class Juice : MonoBehaviour {
 
     #region UI Objects
     IEnumerator CoPulseGroup(CanvasGroup aGroup, float aRepeatTime, float aLowAlpha, float aHighAlpha, bool aUp, float aTime){
-		if(aGroup != null && aLowAlpha < aHighAlpha){
+		if(aLowAlpha < aHighAlpha){
 			aGroup.alpha = aUp ? aLowAlpha : aHighAlpha;
 			float timePassed = 0f;
 			while(timePassed < aTime || aTime == 0f){ //TODO: break on some flag
 				aGroup.alpha = Mathf.Sin ((timePassed + (aUp ? -1f : 1f)*aRepeatTime/4f)*2f*Mathf.PI/aRepeatTime)*((aHighAlpha-aLowAlpha)/2f)+((aHighAlpha+aLowAlpha)/2f);
 				timePassed += Time.deltaTime;
 				yield return new WaitForEndOfFrame();
-			}
-		}
-		yield break;
+                if (aGroup == null)
+                {
+                    DeregisterObject(aGroup);
+                    yield break;
+                }
+            }
+        }
+        DeregisterObject(aGroup);
+        yield break;
 	}
     
     IEnumerator CoWobble(RectTransform aRect, float aDuration, Vector2 aDistance, System.Action aCallback = null){
@@ -256,7 +269,7 @@ public class Juice : MonoBehaviour {
 
     IEnumerator CoLinearTween(RectTransform aRect, float aTime, Vector2 aDistance, System.Action aCallback = null)
     {
-		float startTime = Time.time;
+        float startTime = Time.time;
 		Vector2 targetPos = aRect.anchoredPosition + aDistance;
 		float percentCompleted = 0;
         Vector2 startPos = aRect.anchoredPosition;
@@ -264,7 +277,13 @@ public class Juice : MonoBehaviour {
 			percentCompleted = (Time.time - startTime) / aTime;
 			aRect.anchoredPosition = Vector2.Lerp (startPos, targetPos, percentCompleted);
 			yield return new WaitForEndOfFrame();
-		}
+            if (aRect == null)
+            {
+                DeregisterObject(aRect);
+                yield break;
+            }
+        }
+        DeregisterObject(aRect);
         mCallbacks.Add(aCallback);
 		yield break;
 	}
@@ -283,85 +302,45 @@ public class Juice : MonoBehaviour {
             else
                 aRect.anchoredPosition = Vector2.Lerp(startPos, targetPos, Mathf.Pow(percentCompleted,2));
             yield return new WaitForEndOfFrame();
+            if (aRect == null)
+            {
+                DeregisterObject(aRect);
+                yield break;
+            }
         }
+        DeregisterObject(aRect);
         mCallbacks.Add(aCallback);
         yield break;
-    }
-
-    IEnumerator CoFadeGroupInOut(CanvasGroup aGroup, float aFadeTime, bool aFadeOut = false, float aStayTime = 0, System.Action aCallback = null)
-    {    
-        if (aFadeTime <= 0)
-            aFadeTime = .1f;
-        if (aStayTime == 0)
-            aStayTime = aFadeTime;
-        float stayTimer = 0;
-        if (aFadeOut)
-        {
-            while (aGroup.alpha > 0)
-            {
-                aGroup.alpha -= Time.deltaTime / aFadeTime;
-                yield return new WaitForEndOfFrame();
-            }
-        }
-        else
-        {
-            while (aGroup.alpha < .95)
-            {
-                aGroup.alpha += Time.deltaTime / aFadeTime;
-                yield return new WaitForEndOfFrame();
-            }
-            if (aGroup.alpha > .95)
-                aGroup.alpha = 1;
-        }
-        if (!aFadeOut)
-        {
-            while (stayTimer < aStayTime)
-            {
-                stayTimer += Time.deltaTime;
-                yield return new WaitForEndOfFrame();
-            }
-            StartCoroutine(CoFadeGroupInOut(aGroup, aFadeTime, true));
-        }
-        mCallbacks.Add(aCallback);
-        yield break;
-
     }
 
     IEnumerator CoFadeGroup(CanvasGroup aGroup, float aTime, float targetAlpha, bool scaledTime = true, System.Action aCallback = null)
     {
-        if (aTime == 0)
+        if (aTime != 0)
         {
-            aGroup.alpha = targetAlpha;
-            mCallbacks.Add(aCallback);
-            yield break;
-        }
-        if (targetAlpha > 1) targetAlpha = 1;
-        if (targetAlpha < 0) targetAlpha = 0;
-        if (aTime <= 0)
-            aTime = .1f;
+            if (targetAlpha > 1) targetAlpha = 1;
+            if (targetAlpha < 0) targetAlpha = 0;
+            if (aTime <= 0) aTime = .1f;
 
-        if (aGroup != null)
-        {
-			float timePassed = 0f;
-			float m = (targetAlpha - aGroup.alpha)/(aTime);
-			float b = aGroup.alpha;
-            while (timePassed < aTime){
-                try
-                {
-                    aGroup.alpha = m * timePassed + b;
-                    timePassed += scaledTime ? Time.deltaTime : Time.unscaledDeltaTime;
-                }
-                catch { yield break; }
-				yield return new WaitForEndOfFrame();
-			}
-            try
+            float timePassed = 0f;
+            float m = (targetAlpha - aGroup.alpha) / (aTime);
+            float b = aGroup.alpha;
+            while (timePassed < aTime)
             {
-                aGroup.alpha = targetAlpha;
-                mCallbacks.Add(aCallback);
+                aGroup.alpha = m * timePassed + b;
+                timePassed += scaledTime ? Time.deltaTime : Time.unscaledDeltaTime;
+                yield return new WaitForEndOfFrame();
+                if (aGroup == null)
+                {
+                    DeregisterObject(aGroup);
+                    yield break;
+                }
             }
-            catch { yield break; }
-            yield break;
         }
+        aGroup.alpha = targetAlpha;
+        DeregisterObject(aGroup);
+        mCallbacks.Add(aCallback);
+        yield break;
+        
     }
     #endregion
 
@@ -369,62 +348,81 @@ public class Juice : MonoBehaviour {
     IEnumerator CoFadeSprite(SpriteRenderer aSprite, float aTime, float targetAlpha, bool scaledTime = true, System.Action aCallback = null)
     {
         Color target = new Color(aSprite.color.r, aSprite.color.b, aSprite.color.g, targetAlpha);
-        if (aTime == 0)
+        if (aTime != 0)
         {
-            aSprite.color = target;
-            mCallbacks.Add(aCallback);
-            yield break;
-        }
-        if (targetAlpha > 1) targetAlpha = 1;
-        if (targetAlpha < 0) targetAlpha = 0;
-        if (aTime <= 0)
-            aTime = .1f;
+            if (targetAlpha > 1) targetAlpha = 1;
+            if (targetAlpha < 0) targetAlpha = 0;
+            if (aTime <= 0)
+                aTime = .1f;
 
-        if (aSprite != null)
-        {
             float timePassed = 0f;
             float m = (targetAlpha - aSprite.color.a) / (aTime);
             float b = aSprite.color.a;
             while (timePassed < aTime)
             {
-                if(aSprite != null)
-                    aSprite.color = new Color(aSprite.color.r, aSprite.color.b, aSprite.color.g,  m * timePassed + b);
+                aSprite.color = new Color(aSprite.color.r, aSprite.color.b, aSprite.color.g, m * timePassed + b);
                 timePassed += scaledTime ? Time.deltaTime : Time.unscaledDeltaTime;
                 yield return new WaitForEndOfFrame();
+                if (aSprite == null)
+                {
+                    DeregisterObject(aSprite);
+                    yield break;
+                }
             }
-            if (aSprite != null)
-                aSprite.color = target;
-            mCallbacks.Add(aCallback);
-            yield break;
         }
+        aSprite.color = target;
+        DeregisterObject(aSprite);
+        mCallbacks.Add(aCallback);
+        yield break;
+        
     }
 
     IEnumerator CoLerpSpriteColor(SpriteRenderer aSprite, float aTime, Color aTargetColor, bool scaledTime = true, System.Action aCallback = null)
     {
         Color target = aTargetColor;
-        if (aTime == 0)
-        {
-            aSprite.color = target;
-            mCallbacks.Add(aCallback);
-            yield break;
-        }
-        
-        if (aSprite != null)
+        if (aTime != 0)
         {
             float timePassed = 0f;
             while (timePassed < aTime)
             {
                 float lerpAmount = scaledTime ? Time.deltaTime / aTime : Time.unscaledDeltaTime / aTime;
-                if(aSprite != null)
-                    aSprite.color = Color.Lerp(aSprite.color, aTargetColor, lerpAmount);
+                aSprite.color = Color.Lerp(aSprite.color, aTargetColor, lerpAmount);
                 timePassed += scaledTime ? Time.deltaTime : Time.unscaledDeltaTime;
                 yield return new WaitForEndOfFrame();
+                if (aSprite == null)
+                {
+                    DeregisterObject(aSprite);
+                    yield break;
+                }
             }
-            if (aSprite != null)
-                aSprite.color = target;
-            mCallbacks.Add(aCallback);
-            yield break;
         }
+        aSprite.color = target;
+        DeregisterObject(aSprite);
+        mCallbacks.Add(aCallback);
+        yield break;
+    }
+    #endregion
+
+    #region Helper Methods
+    public bool RegisterObject(Component aObject)
+    {
+        if (mComponents.Contains(aObject)) {
+            //Debug.LogWarning("Component " + aObject.name + " is already being Juiced.");
+            return false; }
+        else { mComponents.Add(aObject); return true; }
+    }
+
+    public bool DeregisterObject(Component aObject)
+    {
+        if (mComponents.Contains(aObject)) { mComponents.Remove(aObject); return true; }
+        else
+        {
+            //Cleanup
+            for (int i = 0; i < mComponents.Count; i++)
+                if (mComponents[i] == null) mComponents.RemoveAt(i);
+            return false;
+        }
+        
     }
     #endregion
 
