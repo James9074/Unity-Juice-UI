@@ -10,5 +10,5 @@ How To Use
 	4.  Take a deep breath
 	5.  Enjoy one-line tweens and fades!
 	6.  Ex: You want to fade a UI Text Component out over 4 seconds, and then destory it after it's faded.
-		Just do this: Juice.Instance.FadeOutGroup(GetComponent<CanvasGroup>(), mStayTime, true, ()=> { Destroy(gameObject); });
+		Just do this: Juice.Instance.FadeOutGroup(GetComponent<CanvasGroup>(), 4, true, ()=> { Destroy(gameObject); });
 		Make sure you have a CanvasGroup attached for all UI fade methods.
