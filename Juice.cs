@@ -26,17 +26,100 @@ public enum TweenType{
     Wobble
 }
 
-public enum FadeType{
-	Linear,
-	Sinusoidal
-}
-
 public class Juice : MonoBehaviour {
     public static Juice Instance;
     public List<System.Action> mCallbacks;
 
     [SerializeField]
     private List<Component> mComponents;
+
+    #region Predefined curves
+    public AnimationCurve SproingIn
+    {
+        get
+        {
+            return new AnimationCurve(new Keyframe(0, 0), new Keyframe(0.7f, 1.1f), new Keyframe(0.85f, 0.9f), new Keyframe(1, 1));
+        }
+    }
+    public AnimationCurve FastFalloff
+    {
+        get
+        {
+            return new AnimationCurve(new Keyframe(0, 0, 1, 1), new Keyframe(0.25f, 0.8f, 1, 1), new Keyframe(1, 1));
+        }
+    }
+    public AnimationCurve LateFalloff
+    {
+        get
+        {
+            return new AnimationCurve(new Keyframe(0, 0), new Keyframe(0.75f, 0.0f), new Keyframe(1, 1));
+        }
+    }
+    public AnimationCurve Wobble
+    {
+        get
+        {
+            return new AnimationCurve(new Keyframe(0, 0), new Keyframe(0.25f, 1), new Keyframe(0.75f, -1), new Keyframe(1, 0));
+        }
+    }
+    public AnimationCurve Linear
+    {
+        get
+        {
+            return new AnimationCurve(new Keyframe(0, 0, 1, 1), new Keyframe(1, 1, 1, 1));
+        }
+    }
+    public AnimationCurve Hop
+    {
+        get
+        {
+            return new AnimationCurve(new Keyframe(0, 0), new Keyframe(0.5f, 1), new Keyframe(1, 0));
+        }
+    }
+    public AnimationCurve SharpHop
+    {
+        get
+        {
+            return new AnimationCurve(new Keyframe(0, 1), new Keyframe(1, 0));
+        }
+    }
+
+    public AnimationCurve Exponential
+    {
+        get
+        {
+            return new AnimationCurve(new Keyframe(0, 0, 1, 1), new Keyframe(0.25f, 0.8f, 1, 1), new Keyframe(1, 1));
+        }
+    }
+    public AnimationCurve DelayedExponential
+    {
+        get
+        {
+            return new AnimationCurve(new Keyframe(0, 0, 1, 1), new Keyframe(0.75f, 0.0f, 1, 1), new Keyframe(1, 1));
+        }
+    }
+    //TODO: Fix this. It doesn't work.
+    public AnimationCurve InvertedExponential
+    {
+        get
+        {
+            return new AnimationCurve(new Keyframe(0, 0, 1, 1), new Keyframe(0.75f, 0.0f, 1, 1), new Keyframe(1, 1));
+        }
+    }
+    [HideInInspector]
+    public AnimationCurve Bounce;
+    public AnimationCurve Elastic
+    {
+        get
+        {
+            return new AnimationCurve(new Keyframe(0, 0), new Keyframe(0.75f, 1.1f), new Keyframe(0.85f, .9f), new Keyframe(1, 1));
+        }
+    }
+    #pragma warning disable 0414
+    [SerializeField]
+    AnimationCurve Custom = new AnimationCurve(new Keyframe(0, 0), new Keyframe(0.75f, 1.1f), new Keyframe(0.85f, .9f), new Keyframe(1, 1));
+    #pragma warning restore 0414
+    #endregion
 
     void Awake()
     {
@@ -64,38 +147,34 @@ public class Juice : MonoBehaviour {
     /// <param name="aRect">The RectTransform to me moved</param>
     /// <param name="aTime">The time it should take to complete</param>
     /// <param name="aDistance">A distance: Vector2(width,height)</param>
-    /// <param name="aTweenType">The type of tween (Linear, Exponential, Etc)</param>
-	public void Tween(RectTransform aRect, float aTime, Vector2 aDistance, TweenType aTweenType = TweenType.Linear, System.Action aCallback = null){
+    /// <param name="aCurve">How should the animation look?</param>
+    /// <param name="aCallback">Should anything happen after we finish?</param>
+    public void Tween(RectTransform aRect, float aTime, Vector2 aDistance, AnimationCurve aCurve, System.Action aCallback = null){
         if (!RegisterObject(aRect))
             return;
-        switch (aTweenType) {
-		case TweenType.Linear:
-            StartCoroutine(CoLinearTween(aRect, aTime, aDistance, aCallback));
-			break;
-		case TweenType.Bounce:
-            throw new System.NotImplementedException();
-		case TweenType.Elastic:
-            throw new System.NotImplementedException();
-		case TweenType.Exponential:
-            StartCoroutine(CoExpTween(aRect, aTime, aDistance,aCallback:aCallback));
-			break;
-        case TweenType.InvertedExponential:
-            StartCoroutine(CoExpTween(aRect, aTime, aDistance, true, aCallback));
-            break;
-		case TweenType.Quadratic:
-            throw new System.NotImplementedException();
-		case TweenType.Rand:
-            throw new System.NotImplementedException();
-        case TweenType.Wobble:
-            StartCoroutine(CoWobble(aRect,aTime,aDistance,aCallback));
-            break;
-		default:
-            Debug.LogWarning("TweenType " + aTweenType.ToString() + " isn't implemented yet!");
-			break;
-		}
+        StartCoroutine(CoTween(aRect, aTime, aDistance, aCurve, aCallback));
         return;
 	}
 
+    /// <summary>
+    /// Rotates the object a number of degrees in a specified direction.
+    /// </summary>
+    /// <param name="aRect">The RectTransform to be rotated</param>
+    /// <param name="aTime">The time it should take to complete</param>
+    /// <param name="aRotationAmount">In how many euler angles to rotate</param>
+    /// <param name="aDirection">should we rotate positive or negative (i.e., right or left)</param>
+    /// <param name="aCurve">How should the animation look?</param>
+    /// <param name="aCallback">Should anything happen after we finish?</param>
+    public void Rotate(RectTransform aRect, float aTime, Vector3 aRotationAmount, int aDirection, AnimationCurve aCurve, System.Action aCallback = null){
+        if (!RegisterObject(aRect))
+            return;
+        StartCoroutine(CoRotate(aRect, aTime, aRotationAmount, aDirection, aCurve, aCallback));
+        return;
+	}
+
+    
+    
+    //TODO: Add in AnimationCurve for Fade Operations
     /// <summary>
     /// Fades a CanvasGroup to a target alpha.
     /// </summary>
@@ -109,49 +188,60 @@ public class Juice : MonoBehaviour {
         StartCoroutine(CoFadeGroup(aGroup, aTime, aTarget, aScaledTime, aCallback: aCallback));
     }
 
-    /// <summary>
-    /// Fades a CanvasGroup out.
-    /// </summary>
-    /// <param name="aGroup">The CanvasGroup</param>
-    /// <param name="aTime">The time it should take</param>
-    /// <param name="aScaledTime">Should this be scaled with Time.TimeScale?</param>
-    /// <param name="aCallback">Any logic to execute once the target state is reached</param>
-    public void FadeOutGroup(CanvasGroup aGroup, float aTime, bool aScaledTime = true, System.Action aCallback = null)
-    {
-        FadeGroup(aGroup, aTime, 0, aScaledTime, aCallback);
-    }
-
-    /// <summary>
-    /// Fades a CanvasGroup in.
-    /// </summary>
-    /// <param name="aGroup">The CanvasGroup</param>
-    /// <param name="aTime">The time it should take</param>
-    /// <param name="aScaledTime">Should this be scaled with Time.TimeScale?</param>
-    /// <param name="aCallback">Any logic to execute once the target state is reached</param>
-    public void FadeInGroup(CanvasGroup aGroup, float aTime, bool aScaledTime = true, System.Action aCallback = null)
-    {
-        if (!RegisterObject(aGroup)) return;
-        FadeGroup(aGroup, aTime, 1, aScaledTime, aCallback);
-    }
-
+    //TODO: Add AnimationCurves, a Callback, and more control to this one.
+    //      There should be parameters to control how long it stays lit and how long it stays unlit. See the Blink method as an example.
     /// <summary>
     /// Pulses a CanvasGroup
     /// </summary>
     /// <param name="aGroup">The CanvasGroup</param>
-    /// <param name="aRepeatTime">The RepeatTime</param>
+    /// <param name="aRepeatTime">How long should one entire pulse take?</param>
     /// <param name="aLowAlpha">How transparent is the group at it's lowest point?</param>
     /// <param name="aHighAlpha">How transparent is the group at it's highest point?</param>
     /// <param name="aUp"></param>
-    /// <param name="aTime">How long do we pulse for?</param>
+    /// <param name="aTime">How long do we pulse for? (0 = infinity)</param>
 	public void PulseGroup(CanvasGroup aGroup, float aRepeatTime, float aLowAlpha, float aHighAlpha, bool aUp = true, float aTime = 0){
         if (!RegisterObject(aGroup)) return;
         aLowAlpha = aLowAlpha < 0f ? 0f : (aLowAlpha > 1f ? 1f : aLowAlpha);
 		aHighAlpha = aHighAlpha < 0f ? 0f : (aHighAlpha > 1f ? 1f : aHighAlpha);
 		StartCoroutine(CoPulseGroup(aGroup, aRepeatTime, aLowAlpha, aHighAlpha, aUp, aTime < 0f ? 0f : aTime));
 	}
+
+    //TODO: Change this to accept a Vector2(x,y) for size, so we can change width and height. Currently, we can only change height.
+    /// <summary>
+    /// Currently used to resize a Unity UI LayoutElement Vertically.
+    /// </summary>
+    /// <param name="aElement">LayoutElement to resize</param>
+    /// <param name="aSize">How tall should it become?</param>
+    /// <param name="aTime">How long should it take?</param>
+    /// <param name="aCurve">How should it look?</param>
+    /// <param name="aCallback">What should happen after we're done, if anything?</param>
+    public void ResizeLayoutElement(UnityEngine.UI.LayoutElement aElement, float aSize, float aTime, AnimationCurve aCurve = null, System.Action aCallback = null)
+    {
+        if (!RegisterObject(aElement)) return;
+        StartCoroutine(CoResizeElementVertical(aElement,aSize,aTime, aCurve, aCallback));
+    }
     #endregion
 
     #region Transforms
+    /// <summary>
+    /// Moves a transform to any given position over time
+    /// </summary>
+    /// <param name="aTransform">The transform to move</param>
+    /// <param name="aTime">How long it should take to complete the move</param>
+    /// <param name="aPos">Where should we move this transform to?</param>
+    /// <param name="aCurve">How should it look?</param>
+    /// <param name="aCallback">What should happen after we're done, if anything?</param>
+    public void MoveTo(Transform aTransform, float aTime, Vector3 aPos, AnimationCurve aCurve = null, System.Action aCallback = null)
+    {
+        if (!RegisterObject(aTransform)) return;
+        StartCoroutine(CoMoveTo(aTransform, aTime, aPos, aCurve, aCallback));
+    }
+
+    public void Scale(Transform aTransform, Vector3 aScale, float aTime, AnimationCurve aCurve = null, System.Action aCallback = null)
+    {
+        if (!RegisterObject(aTransform)) return;
+        StartCoroutine(CoScale(aTransform, aScale, aTime, aCurve, aCallback));
+    }
     #endregion
 
     #region Sprites
@@ -228,54 +318,16 @@ public class Juice : MonoBehaviour {
         DeregisterObject(aGroup);
         yield break;
 	}
-    
-    IEnumerator CoWobble(RectTransform aRect, float aDuration, Vector2 aDistance, System.Action aCallback = null){
-        //TODO: Finish this. It's a shake animation, but needs to be able to lock to an axis. (only x or only y)
-        //float startTime = Time.time;
-        //Vector2 startPos = aRect.anchoredPosition;
-		Vector2 targetPos = aRect.anchoredPosition + aDistance;
-        float aMagnitude = (targetPos - aRect.anchoredPosition).magnitude;
-        //In case the above line doesn't work well aMagnitude = 1;
-        
-        /*****Wobble*****/
-        float elapsed = 0.0f;
-        //This needs to come from aDistance. Maybe the magnitude of the distance between the target distance and rect pos.
 
-    
-        Vector2 originalPos = aRect.anchoredPosition;
-        
-        while (elapsed < aDuration) {
-            
-            elapsed += Time.deltaTime;          
-            
-            float percentComplete = elapsed / aDuration;         
-            float damper = 1.0f - Mathf.Clamp(4.0f * percentComplete - 3.0f, 0.0f, 1.0f);
-            
-            // map value to [-1, 1]
-            float x = Random.value * 2.0f - 1.0f;
-            float y = Random.value * 2.0f - 1.0f;
-            x *= aMagnitude * damper;
-            y *= aMagnitude * damper;
-            
-            //Camera.main.transform.position = new Vector3(x, y, originalCamPos.z);
-            //Should I use WaitForEndOfFrame or return a null? yield return new WaitForEndOfFrame();
-            yield return null;
-        }
-    
-        aRect.anchoredPosition = originalPos;    
-        mCallbacks.Add(aCallback);
-		yield break;
-    }
-
-    IEnumerator CoLinearTween(RectTransform aRect, float aTime, Vector2 aDistance, System.Action aCallback = null)
+    IEnumerator CoTween(RectTransform aRect, float aTime, Vector2 aDistance, AnimationCurve aCurve, System.Action aCallback = null)
     {
         float startTime = Time.time;
+        Vector2 startPos = aRect.anchoredPosition;
 		Vector2 targetPos = aRect.anchoredPosition + aDistance;
 		float percentCompleted = 0;
-        Vector2 startPos = aRect.anchoredPosition;
 		while(Vector2.Distance(aRect.anchoredPosition,targetPos) > .5f && percentCompleted < 1){
 			percentCompleted = (Time.time - startTime) / aTime;
-			aRect.anchoredPosition = Vector2.Lerp (startPos, targetPos, percentCompleted);
+			aRect.anchoredPosition = Vector2.Lerp (startPos, targetPos, aCurve.Evaluate(percentCompleted));
 			yield return new WaitForEndOfFrame();
             if (aRect == null)
             {
@@ -286,22 +338,19 @@ public class Juice : MonoBehaviour {
         DeregisterObject(aRect);
         mCallbacks.Add(aCallback);
 		yield break;
-	}
+    }
+    
 
-    IEnumerator CoExpTween(RectTransform aRect, float aTime, Vector2 aDistance, bool aInverted = false, System.Action aCallback = null)
+    IEnumerator CoRotate(RectTransform aRect, float aTime, Vector3 aRotationAmount, int aDirection, AnimationCurve aCurve, System.Action aCallback = null)
     {
         float startTime = Time.time;
-        Vector2 targetPos = aRect.anchoredPosition + aDistance;
-        float percentCompleted = 0;
-        Vector2 startPos = aRect.anchoredPosition;
-        while (Vector2.Distance(aRect.anchoredPosition, targetPos) > .5f && percentCompleted < 1)
-        {
-            percentCompleted = (Time.time - startTime) / aTime;
-            if (aInverted)
-                aRect.anchoredPosition = Vector2.Lerp(startPos, targetPos, Mathf.Sqrt(percentCompleted));
-            else
-                aRect.anchoredPosition = Vector2.Lerp(startPos, targetPos, Mathf.Pow(percentCompleted,2));
-            yield return new WaitForEndOfFrame();
+        Quaternion startRot = aRect.rotation;
+		Quaternion targetRot = aRect.rotation * Quaternion.Euler(aRotationAmount.x,aRotationAmount.y,aRotationAmount.z);
+		float percentCompleted = 0;
+		while(percentCompleted < 1){
+			percentCompleted = (Time.time - startTime) / aTime;
+			aRect.rotation = Quaternion.Slerp (startRot, targetRot, aCurve.Evaluate(percentCompleted));
+			yield return new WaitForEndOfFrame();
             if (aRect == null)
             {
                 DeregisterObject(aRect);
@@ -309,6 +358,27 @@ public class Juice : MonoBehaviour {
             }
         }
         DeregisterObject(aRect);
+        mCallbacks.Add(aCallback);
+		yield break;
+    }
+
+    IEnumerator CoResizeElementVertical(UnityEngine.UI.LayoutElement aElement, float aSize, float aTime, AnimationCurve aCurve = null, System.Action aCallback = null)
+    {
+        float startTime = Time.time;
+        float percentCompleted = 0;
+        float startSize = aElement.minHeight;
+        while (Mathf.Abs(aElement.minHeight - aSize) > .5f && percentCompleted < 1)
+        {
+            percentCompleted = (Time.time - startTime) / aTime;
+            aElement.minHeight = Mathf.Lerp(startSize, aSize, aCurve.Evaluate(percentCompleted));
+            yield return new WaitForEndOfFrame();
+            if (aElement == null)
+            {
+                DeregisterObject(aElement);
+                yield break;
+            }
+        }
+        DeregisterObject(aElement);
         mCallbacks.Add(aCallback);
         yield break;
     }
@@ -403,7 +473,7 @@ public class Juice : MonoBehaviour {
     }
     #endregion
 
-    #region Helper Methods
+    #region Helper/Utility Methods
     public bool RegisterObject(Component aObject)
     {
         if (mComponents.Contains(aObject)) {
@@ -424,6 +494,100 @@ public class Juice : MonoBehaviour {
         }
         
     }
+
+    /// <summary>
+    /// Delays a delegated action.
+    /// </summary>
+    /// <param name="aTime">How long to wait before executing the action</param>
+    /// <param name="aCallback">What logic to execute after the delay</param>
+    public void Delay(float aTime, System.Action aCallback)
+    {
+        StartCoroutine(CoDelay(aTime, aCallback));
+    }
+
+    IEnumerator CoDelay(float atime, System.Action aCallback)
+    {
+        yield return new WaitForSeconds(atime);
+        aCallback.Invoke();
+    }
+
+    private void BlinkGroup(CanvasGroup aGroup, int aNumPulses, float aTimeBetweenPulses, float aTimeLitUp, System.Action aCallback = null)
+    {
+        if (aNumPulses == 0)
+        {
+            DeregisterObject(aGroup);
+            if(aCallback != null) aCallback.Invoke();
+            return;
+        }
+        Delay(aTimeLitUp, () => { aGroup.alpha = 0; Delay(aTimeBetweenPulses, () => { aGroup.alpha = 1; BlinkGroup(aGroup, (aNumPulses - 1), aTimeBetweenPulses, aTimeLitUp, aCallback); }); });
+    }
+
+    /// <summary>
+    /// Blinks a CanvasGroup a number of times.
+    /// </summary>
+    /// <param name="aGroup">A CanvasGroup</param>
+    /// <param name="aNumPulses">How many blinks to perform (-1 = infinite)</param>
+    /// <param name="aTimeBetweenPulses">How long to pause between blinks</param>
+    /// <param name="aTimeLitUp">How long to stay lit</param>
+    /// <param name="aCallback">What logic to execute after the last blink, if any</param>
+    public void Blink(CanvasGroup aGroup, int aNumPulses, float aTimeBetweenPulses, float aTimeLitUp, System.Action aCallback = null)
+    {
+        if(RegisterObject(aGroup))
+            BlinkGroup(aGroup, aNumPulses, aTimeBetweenPulses, aTimeLitUp, aCallback);
+    }
+    
+    #endregion
+
+    #region Transforms
+    IEnumerator CoMoveTo(Transform aTransform, float aTime, Vector3 aPos, AnimationCurve aCurve = null, System.Action aCallback = null)
+    {
+        if (aCurve == null) aCurve = Linear;
+
+        Vector3 startPos = aTransform.position;
+        float timeStarted = Time.time;
+        
+        while (true)
+        {
+            float timeSinceStarted = Time.time - timeStarted;
+            float percentageComplete = timeSinceStarted / aTime;
+
+            aTransform.position = Vector3.Lerp(startPos, aPos, aCurve.Evaluate(percentageComplete));
+
+            if (percentageComplete >= 1.0f)
+            {
+                mCallbacks.Add(aCallback);
+                DeregisterObject(aTransform);
+                yield break;
+            }
+
+            yield return new WaitForFixedUpdate();
+        }
+    }
+
+    IEnumerator CoScale(Transform aTransform, Vector3 aScale, float aTime, AnimationCurve aCurve = null, System.Action aCallback = null)
+    {
+        Vector3 startScale = aTransform.localScale;
+        float timeStarted = Time.time;
+
+        while (true)
+        {
+            float timeSinceStarted = Time.time - timeStarted;
+            float percentageComplete = timeSinceStarted / aTime;
+            if (aCurve == null) aCurve = Linear;
+
+            aTransform.localScale = (startScale + (aCurve.Evaluate(percentageComplete) * aScale));
+
+            if (percentageComplete >= 1.0f)
+            {
+                mCallbacks.Add(aCallback);
+                DeregisterObject(aTransform);
+                yield break;
+            }
+
+            yield return new WaitForFixedUpdate();
+        }
+    }
+
     #endregion
 
     #endregion
