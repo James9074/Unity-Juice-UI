@@ -1,0 +1,16 @@
+
+*.csproj
+
+Demo/.vs/Juice/v14/.suo
+
+Demo/.vscode
+
+Demo/Assets/VSCode/
+
+Demo/Assets/VSCode.meta
+
+Demo/Library/
+
+Demo/obj/
+
+Demo/Temp/
