@@ -14,21 +14,24 @@
 
 
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
-public enum TweenType{
-	Linear, 
-	Exponential,
+public enum TweenType
+{
+    Linear,
+    Exponential,
     InvertedExponential,
-	Quadratic,
-	Bounce,
-	Elastic,
-	Rand, 
+    Quadratic,
+    Bounce,
+    Elastic,
+    Rand,
     Wobble
 }
 
-public class Juice : MonoBehaviour {
+public class Juice : MonoBehaviour
+{
     public static Juice Instance;
     public List<System.Action> mCallbacks;
 
@@ -117,10 +120,10 @@ public class Juice : MonoBehaviour {
             return new AnimationCurve(new Keyframe(0, 0), new Keyframe(0.75f, 1.1f), new Keyframe(0.85f, .9f), new Keyframe(1, 1));
         }
     }
-    #pragma warning disable 0414
+#pragma warning disable 0414
     [SerializeField]
     AnimationCurve Custom = new AnimationCurve(new Keyframe(0, 0), new Keyframe(0.75f, 1.1f), new Keyframe(0.85f, .9f), new Keyframe(1, 1));
-    #pragma warning restore 0414
+#pragma warning restore 0414
     #endregion
 
     void Awake()
@@ -135,7 +138,7 @@ public class Juice : MonoBehaviour {
         if (mCallbacks.Count > 0)
         {
             foreach (System.Action callback in mCallbacks)
-                if(callback != null) callback.Invoke();
+                if (callback != null) callback.Invoke();
             mCallbacks.Clear();
         }
     }
@@ -151,12 +154,13 @@ public class Juice : MonoBehaviour {
     /// <param name="aDistance">A distance: Vector2(width,height)</param>
     /// <param name="aCurve">How should the animation look?</param>
     /// <param name="aCallback">Should anything happen after we finish?</param>
-    public void Tween(RectTransform aRect, float aTime, Vector2 aDistance, AnimationCurve aCurve, System.Action aCallback = null){
+    public void Tween(RectTransform aRect, float aTime, Vector2 aDistance, AnimationCurve aCurve, System.Action aCallback = null)
+    {
         if (!RegisterObject(aRect))
             return;
         StartCoroutine(CoTween(aRect, aTime, aDistance, aCurve, aCallback));
         return;
-	}
+    }
 
     /// <summary>
     /// Rotates the object a number of degrees in a specified direction.
@@ -167,15 +171,16 @@ public class Juice : MonoBehaviour {
     /// <param name="aDirection">should we rotate positive or negative (i.e., right or left)</param>
     /// <param name="aCurve">How should the animation look?</param>
     /// <param name="aCallback">Should anything happen after we finish?</param>
-    public void Rotate(RectTransform aRect, float aTime, Vector3 aRotationAmount, int aDirection, AnimationCurve aCurve, System.Action aCallback = null){
+    public void Rotate(RectTransform aRect, float aTime, Vector3 aRotationAmount, int aDirection, AnimationCurve aCurve, System.Action aCallback = null)
+    {
         if (!RegisterObject(aRect))
             return;
         StartCoroutine(CoRotate(aRect, aTime, aRotationAmount, aDirection, aCurve, aCallback));
         return;
-	}
+    }
 
-    
-    
+
+
     //TODO: Add in AnimationCurve for Fade Operations
     /// <summary>
     /// Fades a CanvasGroup to a target alpha.
@@ -185,7 +190,8 @@ public class Juice : MonoBehaviour {
     /// <param name="aTarget">The end alpha</param>
     /// <param name="aScaledTime">Should this be scaled with Time.TimeScale?</param>
     /// <param name="aCallback">Any logic to execute once the target state is reached</param>
-    public void FadeGroup(CanvasGroup aGroup, float aTime, float aTarget, bool aScaledTime = true, System.Action aCallback = null){
+    public void FadeGroup(CanvasGroup aGroup, float aTime, float aTarget, bool aScaledTime = true, System.Action aCallback = null)
+    {
         if (!RegisterObject(aGroup)) return;
         StartCoroutine(CoFadeGroup(aGroup, aTime, aTarget, aScaledTime, aCallback: aCallback));
     }
@@ -201,12 +207,13 @@ public class Juice : MonoBehaviour {
     /// <param name="aHighAlpha">How transparent is the group at it's highest point?</param>
     /// <param name="aUp"></param>
     /// <param name="aTime">How long do we pulse for? (0 = infinity)</param>
-	public void PulseGroup(CanvasGroup aGroup, float aRepeatTime, float aLowAlpha, float aHighAlpha, bool aUp = true, float aTime = 0){
+	public void PulseGroup(CanvasGroup aGroup, float aRepeatTime, float aLowAlpha, float aHighAlpha, bool aUp = true, float aTime = 0)
+    {
         if (!RegisterObject(aGroup)) return;
         aLowAlpha = aLowAlpha < 0f ? 0f : (aLowAlpha > 1f ? 1f : aLowAlpha);
-		aHighAlpha = aHighAlpha < 0f ? 0f : (aHighAlpha > 1f ? 1f : aHighAlpha);
-		StartCoroutine(CoPulseGroup(aGroup, aRepeatTime, aLowAlpha, aHighAlpha, aUp, aTime < 0f ? 0f : aTime));
-	}
+        aHighAlpha = aHighAlpha < 0f ? 0f : (aHighAlpha > 1f ? 1f : aHighAlpha);
+        StartCoroutine(CoPulseGroup(aGroup, aRepeatTime, aLowAlpha, aHighAlpha, aUp, aTime < 0f ? 0f : aTime));
+    }
 
     //TODO: Change this to accept a Vector2(x,y) for size, so we can change width and height. Currently, we can only change height.
     /// <summary>
@@ -220,7 +227,7 @@ public class Juice : MonoBehaviour {
     public void ResizeLayoutElement(UnityEngine.UI.LayoutElement aElement, float aSize, float aTime, AnimationCurve aCurve = null, System.Action aCallback = null)
     {
         if (!RegisterObject(aElement)) return;
-        StartCoroutine(CoResizeElementVertical(aElement,aSize,aTime, aCurve, aCallback));
+        StartCoroutine(CoResizeElementVertical(aElement, aSize, aTime, aCurve, aCallback));
     }
     #endregion
 
@@ -296,6 +303,24 @@ public class Juice : MonoBehaviour {
         if (!RegisterObject(aSprite)) return;
         StartCoroutine(CoLerpSpriteColor(aSprite, aTime, aTarget, aScaledTime, aCallback: aCallback));
     }
+
+    /// <summary>
+    /// Quickly increase a Text element's number value
+    /// </summary>
+    /// <param name="aText">The text element</param>
+    /// <param name="aStartingNumber">The starting number</param>
+    /// <param name="aModifierNumber">The amount to increase or decrease aStartingNumber by</param>
+    /// <param name="aTime">How long should this take?</param>
+    /// <param name="aScale">Should we change the size over time?</param>
+    /// <param name="aScaledTime">Should this be affected by scaled time?</param>
+    /// <param name="aCallback">Now what?</param>
+    public void NumberCounter(Text aText, int aStartingNumber, int aModifierNumber, float aTime, AnimationCurve aScale = null, bool aScaledTime = true, System.Action aCallback = null)
+    {
+        if (aModifierNumber == 0)
+            return;
+        if (!RegisterObject(aText)) return;
+        StartCoroutine(CoNumberCounter(aText, aStartingNumber, aModifierNumber, aTime, aScale, aScaledTime, aCallback));
+    }
     #endregion
 
     #endregion
@@ -303,14 +328,50 @@ public class Juice : MonoBehaviour {
     #region Coroutines
 
     #region UI Objects
-    IEnumerator CoPulseGroup(CanvasGroup aGroup, float aRepeatTime, float aLowAlpha, float aHighAlpha, bool aUp, float aTime){
-		if(aLowAlpha < aHighAlpha){
-			aGroup.alpha = aUp ? aLowAlpha : aHighAlpha;
-			float timePassed = 0f;
-			while(timePassed < aTime || aTime == 0f){ //TODO: break on some flag
-				aGroup.alpha = Mathf.Sin ((timePassed + (aUp ? -1f : 1f)*aRepeatTime/4f)*2f*Mathf.PI/aRepeatTime)*((aHighAlpha-aLowAlpha)/2f)+((aHighAlpha+aLowAlpha)/2f);
-				timePassed += Time.deltaTime;
-				yield return new WaitForEndOfFrame();
+    IEnumerator CoNumberCounter(Text aText, int aStartingNumber, int aModifierNumber, float aTime, AnimationCurve aScale, bool aScaledTime = true, System.Action aCallback = null)
+    {
+
+        float startTime = Time.time;
+        float percentCompleted = 0;
+        float aCurrentNumber = aStartingNumber;
+        int aEndingNumber = aStartingNumber + aModifierNumber;
+
+        Vector3 startScale = aText.rectTransform.localScale;
+
+        while (aCurrentNumber != aEndingNumber && percentCompleted < 1)
+        {
+            percentCompleted = (Time.time - startTime) / aTime;
+
+            aCurrentNumber = Mathf.Round(Mathf.Lerp(aStartingNumber, aEndingNumber, percentCompleted));
+            aText.text = aCurrentNumber.ToString();
+
+            if (aScale != null)
+            {
+                aText.rectTransform.localScale = Vector3.Lerp(Vector3.zero, startScale, aScale.Evaluate(percentCompleted));
+            }
+            yield return new WaitForEndOfFrame();
+            if (aText == null)
+            {
+                DeregisterObject(aText);
+                yield break;
+            }
+        }
+        aText.text = aEndingNumber.ToString();
+        DeregisterObject(aText);
+        mCallbacks.Add(aCallback);
+        yield break;
+    }
+    IEnumerator CoPulseGroup(CanvasGroup aGroup, float aRepeatTime, float aLowAlpha, float aHighAlpha, bool aUp, float aTime)
+    {
+        if (aLowAlpha < aHighAlpha)
+        {
+            aGroup.alpha = aUp ? aLowAlpha : aHighAlpha;
+            float timePassed = 0f;
+            while (timePassed < aTime || aTime == 0f)
+            { //TODO: break on some flag
+                aGroup.alpha = Mathf.Sin((timePassed + (aUp ? -1f : 1f) * aRepeatTime / 4f) * 2f * Mathf.PI / aRepeatTime) * ((aHighAlpha - aLowAlpha) / 2f) + ((aHighAlpha + aLowAlpha) / 2f);
+                timePassed += Time.deltaTime;
+                yield return new WaitForEndOfFrame();
                 if (aGroup == null)
                 {
                     DeregisterObject(aGroup);
@@ -320,18 +381,19 @@ public class Juice : MonoBehaviour {
         }
         DeregisterObject(aGroup);
         yield break;
-	}
+    }
 
     IEnumerator CoTween(RectTransform aRect, float aTime, Vector2 aDistance, AnimationCurve aCurve, System.Action aCallback = null)
     {
         float startTime = Time.time;
         Vector2 startPos = aRect.anchoredPosition;
-		Vector2 targetPos = aRect.anchoredPosition + aDistance;
-		float percentCompleted = 0;
-		while(Vector2.Distance(aRect.anchoredPosition,targetPos) > .5f && percentCompleted < 1){
-			percentCompleted = (Time.time - startTime) / aTime;
-			aRect.anchoredPosition = Vector2.Lerp (startPos, targetPos, aCurve.Evaluate(percentCompleted));
-			yield return new WaitForEndOfFrame();
+        Vector2 targetPos = aRect.anchoredPosition + aDistance;
+        float percentCompleted = 0;
+        while (Vector2.Distance(aRect.anchoredPosition, targetPos) > .5f && percentCompleted < 1)
+        {
+            percentCompleted = (Time.time - startTime) / aTime;
+            aRect.anchoredPosition = Vector2.Lerp(startPos, targetPos, aCurve.Evaluate(percentCompleted));
+            yield return new WaitForEndOfFrame();
             if (aRect == null)
             {
                 DeregisterObject(aRect);
@@ -340,20 +402,21 @@ public class Juice : MonoBehaviour {
         }
         DeregisterObject(aRect);
         mCallbacks.Add(aCallback);
-		yield break;
+        yield break;
     }
-    
+
 
     IEnumerator CoRotate(RectTransform aRect, float aTime, Vector3 aRotationAmount, int aDirection, AnimationCurve aCurve, System.Action aCallback = null)
     {
         float startTime = Time.time;
         Quaternion startRot = aRect.rotation;
-		Quaternion targetRot = aRect.rotation * Quaternion.Euler(aRotationAmount.x,aRotationAmount.y,aRotationAmount.z);
-		float percentCompleted = 0;
-		while(percentCompleted < 1){
-			percentCompleted = (Time.time - startTime) / aTime;
-			aRect.rotation = Quaternion.Slerp (startRot, targetRot, aCurve.Evaluate(percentCompleted));
-			yield return new WaitForEndOfFrame();
+        Quaternion targetRot = aRect.rotation * Quaternion.Euler(aRotationAmount.x, aRotationAmount.y, aRotationAmount.z);
+        float percentCompleted = 0;
+        while (percentCompleted < 1)
+        {
+            percentCompleted = (Time.time - startTime) / aTime;
+            aRect.rotation = Quaternion.Slerp(startRot, targetRot, aCurve.Evaluate(percentCompleted));
+            yield return new WaitForEndOfFrame();
             if (aRect == null)
             {
                 DeregisterObject(aRect);
@@ -362,7 +425,7 @@ public class Juice : MonoBehaviour {
         }
         DeregisterObject(aRect);
         mCallbacks.Add(aCallback);
-		yield break;
+        yield break;
     }
 
     IEnumerator CoResizeElementVertical(UnityEngine.UI.LayoutElement aElement, float aSize, float aTime, AnimationCurve aCurve = null, System.Action aCallback = null)
@@ -413,7 +476,7 @@ public class Juice : MonoBehaviour {
         DeregisterObject(aGroup);
         mCallbacks.Add(aCallback);
         yield break;
-        
+
     }
     #endregion
 
@@ -447,7 +510,7 @@ public class Juice : MonoBehaviour {
         DeregisterObject(aSprite);
         mCallbacks.Add(aCallback);
         yield break;
-        
+
     }
 
     IEnumerator CoLerpSpriteColor(SpriteRenderer aSprite, float aTime, Color aTargetColor, bool scaledTime = true, System.Action aCallback = null)
@@ -479,9 +542,11 @@ public class Juice : MonoBehaviour {
     #region Helper/Utility Methods
     public bool RegisterObject(Component aObject)
     {
-        if (mComponents.Contains(aObject)) {
+        if (mComponents.Contains(aObject))
+        {
             //Debug.LogWarning("Component " + aObject.name + " is already being Juiced.");
-            return false; }
+            return false;
+        }
         else { mComponents.Add(aObject); return true; }
     }
 
@@ -495,7 +560,7 @@ public class Juice : MonoBehaviour {
                 if (mComponents[i] == null) mComponents.RemoveAt(i);
             return false;
         }
-        
+
     }
 
     /// <summary>
@@ -519,7 +584,7 @@ public class Juice : MonoBehaviour {
         if (aNumPulses == 0)
         {
             DeregisterObject(aGroup);
-            if(aCallback != null) aCallback.Invoke();
+            if (aCallback != null) aCallback.Invoke();
             return;
         }
         Delay(aTimeLitUp, () => { aGroup.alpha = 0; Delay(aTimeBetweenPulses, () => { aGroup.alpha = 1; BlinkGroup(aGroup, (aNumPulses - 1), aTimeBetweenPulses, aTimeLitUp, aCallback); }); });
@@ -535,10 +600,10 @@ public class Juice : MonoBehaviour {
     /// <param name="aCallback">What logic to execute after the last blink, if any</param>
     public void Blink(CanvasGroup aGroup, int aNumPulses, float aTimeBetweenPulses, float aTimeLitUp, System.Action aCallback = null)
     {
-        if(RegisterObject(aGroup))
+        if (RegisterObject(aGroup))
             BlinkGroup(aGroup, aNumPulses, aTimeBetweenPulses, aTimeLitUp, aCallback);
     }
-    
+
     #endregion
 
     #region Transforms
@@ -548,7 +613,7 @@ public class Juice : MonoBehaviour {
 
         Vector3 startPos = aLocalPos ? aTransform.localPosition : aTransform.position;
         float timeStarted = Time.time;
-        
+
         while (true)
         {
             float timeSinceStarted = Time.time - timeStarted;
