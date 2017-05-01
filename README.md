@@ -31,3 +31,9 @@ The following will move 'myRect' 5 units up and 6 units to the left in exactly 1
 The following will fade out a CanvasGroup linearly, regardless of it's current alpha
 
 	Juice.Instance.FadeGroup(myGroup, 0.5f, 0.0f)
+
+Contributions
+=======
+Please raise an issue for feature requests, and a PR into master for any contributions with the following:
+**Summary of changes**
+**How to test (convince me this won't break existing Juice implementations)**
