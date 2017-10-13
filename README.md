@@ -20,7 +20,7 @@ How To Use
 
 Examples
 =======
-###Here are a few examples to get you going
+### Here are a few examples to get you going
 
 The following will move 'myRect' 5 units up and 6 units to the left in exactly 1 second, linearly. After completing, it will print a debug statement
 
