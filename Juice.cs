@@ -1,4 +1,4 @@
-﻿/*     Juice Library (2016) - Created by James Thomas (http://rotary-design.com)
+﻿/*     Juice Library (2017) - Created by James Thomas (https://wlan1.net)
 *  ===============================================================================
 *  This library is free to use, manipulate, and redistribute under the MIT License
 *  Please give me credit if you use it!
@@ -9,8 +9,8 @@
 *
 *  Let me know if it's useful or if you have questions: james9074@gmail.com
 *
-*  Version: 1.10 - Developed with Unity 4.6 - 5.3.5f1
-*  Last Updated: Dec 11th, 2016
+*  Version: 1.10 - Developed with Unity 4.6 - 2017.2
+*  Last Updated: July 27th, 2017
 */
 
 
