@@ -1,6 +1,8 @@
 
 *.csproj
 
+*.vscode
+
 Demo/.vs/Juice/v14/.suo
 
 Demo/.vscode
