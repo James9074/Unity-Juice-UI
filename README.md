@@ -1,4 +1,4 @@
-# Unity Juice UI Tools
+# Unity Juice UI Tools | Tested For Unity 2017.2
 <p align="center">
   <img src="https://puu.sh/sLpgn/c27bd836cc.gif">
   <br/><br/>
