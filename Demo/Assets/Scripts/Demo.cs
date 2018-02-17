@@ -13,16 +13,16 @@ public class Demo : MonoBehaviour {
     RectTransform mMoveDot;
 
     void Start () {
-        mMiddlePanel = transform.FindChild("Middle").GetComponent<RectTransform>();
+        mMiddlePanel = transform.Find("Middle").GetComponent<RectTransform>();
 
-        mTweenPanel = mMiddlePanel.FindChild("TweenTypesPanel").GetComponent<RectTransform>();
-        mTweenPanelArrow = mTweenPanel.FindChild("Arrow").GetComponent<RectTransform>();
-        mCreditsPanelArrow = mMiddlePanel.FindChild("CreditsPanel/Arrow").GetComponent<RectTransform>();
+        mTweenPanel = mMiddlePanel.Find("TweenTypesPanel").GetComponent<RectTransform>();
+        mTweenPanelArrow = mTweenPanel.Find("Arrow").GetComponent<RectTransform>();
+        mCreditsPanelArrow = mMiddlePanel.Find("CreditsPanel/Arrow").GetComponent<RectTransform>();
 
-        mInstructionsPanel = mMiddlePanel.FindChild("Instructions").GetComponent<RectTransform>();
-        mMoveDot = mInstructionsPanel.FindChild("MoveDot").GetComponent<RectTransform>();
+        mInstructionsPanel = mMiddlePanel.Find("Instructions").GetComponent<RectTransform>();
+        mMoveDot = mInstructionsPanel.Find("MoveDot").GetComponent<RectTransform>();
         
-        mDot = mInstructionsPanel.FindChild("Instructions/Juice/Dot").GetComponent<CanvasGroup>();
+        mDot = mInstructionsPanel.Find("Instructions/Juice/Dot").GetComponent<CanvasGroup>();
         Juice.Instance.PulseGroup(mDot, 2, 0, 1);
 
         Juice.Instance.Delay(2f, () =>
