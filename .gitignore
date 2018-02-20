@@ -16,3 +16,10 @@ Demo/Library/
 Demo/obj/
 
 Demo/Temp/
+/Demo/.vs/Demo/v14/*.suo
+/Demo/*.sln
+/Demo/.vs/Demo/v15/*.suo
+/Demo/.vs/Demo/v15/Server/sqlite3/*.lock
+/Demo/.vs/Demo/v15/Server/sqlite3/*.ide
+/Demo/.vs/Demo/v15/Server/sqlite3/*.ide-shm
+/Demo/.vs/Demo/v15/Server/sqlite3/*.ide-wal
