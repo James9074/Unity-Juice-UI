@@ -1,10 +1,10 @@
 # Unity Juice UI Tools | Tested For Unity 5.x - 2017+
-[Comprehensive API documentation can be found here](https://github.com/James9074/Unity-Juice-UI/wiki/API-Reference-Docs)
 
 <p align="center">
   <img src="https://puu.sh/zvGnH/b382b6c3dd.gif">
-  <br/><br/>
-  <span>A Juicy system for tweening Unity3D sprites, UI elements, and more. Tested in Unity 5.x - 2017+</span>
+<br/><br/>
+<span>A library for juicing Unity3D sprites, models, UI elements, shaders, and more.</span><br/>
+<a href="https://github.com/James9074/Unity-Juice-UI/wiki/API-Reference-Docs">Comprehensive API documentation can be found here</a>
 </p>
 
 How To Use
@@ -13,12 +13,7 @@ How To Use
 	1.  Download the Juice.cs file and throw it wherever you'd like in your assets folder
 	2.  Attach Juice.cs as a component to any gameobject that won't be destroyed (such as GameManager). Juice is a singleton.
 	3.  Call the library in any script anywhere (not just on that GameObject) via Juice.Instance.[JuiceMethodName]
-	4.  Take a deep breath
-	5.  Enjoy one-line tweens and fades!
-	6.  Ex: You want to fade a UI Text Component out over 4 seconds, and then destroy it after it's faded.
-		Just do this: Juice.Instance.FadeOutGroup(GetComponent<CanvasGroup>(), 4, true, ()=> { Destroy(gameObject); });
-		Make sure you have a CanvasGroup attached for all UI fade methods.
-	7.  Check out the demo project if you're curious, or want examples of usage.
+	4.  Enjoy one-line tweens, fades, and color lerps!
 
 Examples
 =======
@@ -34,8 +29,13 @@ The following will fade out a CanvasGroup linearly, regardless of it's current a
 
 	Juice.Instance.FadeGroup(myGroup, 0.5f, 0.0f)
 
+Animations
+======
+The following animations from [easings.net](http://easings.net) are included. Please note that any animations on that page that go outside the bounds of (0,1) are not enabled in Juice at this time.
+![easings.net](https://puu.sh/zvGP5/ec4c2b2446.png)
+
 Contributions
 =======
 Please raise an issue for feature requests, and a PR into master for any contributions with the following:
-<br/>**Summary of changes**
-<br/>**How to test (convince me this won't break existing Juice implementations)**
+* **Summary of changes**
+* **How to test (convince me this won't break existing Juice implementations)**
