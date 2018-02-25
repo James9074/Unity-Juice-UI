@@ -13,7 +13,13 @@ public class Demo : MonoBehaviour {
     RectTransform mMoveDot;
 
     [SerializeField]
-    Transform aCube;
+    Transform mCube;
+
+    [SerializeField]
+    Color mColorA;
+
+    [SerializeField]
+    Color mColorB;
 
     void Start () {
         mMiddlePanel = transform.Find("Middle").GetComponent<RectTransform>();
@@ -39,81 +45,23 @@ public class Demo : MonoBehaviour {
 
         RotateCube();
         MoveCube();
+        ColorCube();
 
+        string keyframe = "new AnimationCurve(";
         for (int i = 0; i < customCurve.keys.Length; i++)
         {
             //AnimationCurve(new Keyframe(0, 0), new Keyframe(0.75f, 1.1f), new Keyframe(0.85f, .9f), new Keyframe(1, 1));
             //Keyframe frame = new Keyframe()
-            //Debug.Log("new Keyframe ("+customCurve.keys[i].time +"," + customCurve.keys[i].value + "," + customCurve.keys[i].inTangent + "," + customCurve.keys[i].outTangent+"),");
-
+            keyframe += "new Keyframe (" + customCurve.keys[i].time + "," + customCurve.keys[i].value + "," + customCurve.keys[i].inTangent + "," + customCurve.keys[i].outTangent + ")" + (i < customCurve.keys.Length-1 ? "," : "");
         }
+        keyframe += ");";
+        //Debug.Log(keyframe);
     }
-
-    [SerializeField]
-    AnimationCurve easeInSine;
-    [SerializeField]
-    AnimationCurve easeOutSine;
-    [SerializeField]
-    AnimationCurve easeInOutSine;
-    [SerializeField]
-    AnimationCurve easeInQuad;
-    [SerializeField]
-    AnimationCurve easeOutQuad;
-    [SerializeField]
-    AnimationCurve easeInOutQuad;
-    [SerializeField]
-    AnimationCurve easeInCubic;
-    [SerializeField]
-    AnimationCurve easeOutCubic;
-    [SerializeField]
-    AnimationCurve easeInOutCubic;
-    [SerializeField]
-    AnimationCurve easeInQuart;
-    [SerializeField]
-    AnimationCurve easeOutQuart;
-    [SerializeField]
-    AnimationCurve easeInOutQuart;
-    [SerializeField]
-    AnimationCurve easeInQuint;
-    [SerializeField]
-    AnimationCurve easeOutQuint;
-    [SerializeField]
-    AnimationCurve easeInOutQuint;
-    [SerializeField]
-    AnimationCurve easeInExpo;
-    [SerializeField]
-    AnimationCurve easeOutExpo;
-    [SerializeField]
-    AnimationCurve easeInOutExpo;
-    [SerializeField]
-    AnimationCurve easeInCirc;
-    [SerializeField]
-    AnimationCurve easeOutCirc;
-    [SerializeField]
-    AnimationCurve easeInOutCirc;
-    [SerializeField]
-    AnimationCurve easeInBack;
-    [SerializeField]
-    AnimationCurve easeOutBack;
-    [SerializeField]
-    AnimationCurve easeInOutBack;
-    [SerializeField]
-    AnimationCurve easeInElastic;
-    [SerializeField]
-    AnimationCurve easeOutElastic;
-    [SerializeField]
-    AnimationCurve easeInOutElastic;
-    [SerializeField]
-    AnimationCurve easeInBounce;
-    [SerializeField]
-    AnimationCurve easeOutBounce;
-    [SerializeField]
-    AnimationCurve easeInOutBounce;
-
+    
     int mDirection = -1;
     public void MoveCube()
     {
-        Juice.Instance.MoveTo(aCube, 1f, Vector3.up * mDirection, false, GetCurrentCurve(), () =>
+        Juice.Instance.MoveTo(mCube, 1f, Vector3.up * mDirection, false, GetCurrentCurve(), () =>
         {
             mDirection = mDirection * -1;
             MoveCube();
@@ -123,10 +71,21 @@ public class Demo : MonoBehaviour {
     int mRotation = -1;
     public void RotateCube()
     {
-        Juice.Instance.Rotate(aCube, 1f, Vector3.up * 50f * mRotation, mRotation, GetCurrentCurve(), () =>
+        Juice.Instance.Rotate(mCube, 1f, Vector3.up * 50f * mRotation, mRotation, GetCurrentCurve(), () =>
         {
             mRotation = mRotation * -1;
             RotateCube();
+        });
+    }
+
+    int mColor = -1;
+    public void ColorCube()
+    {
+        MeshRenderer cubeRend = mCube.GetComponent<MeshRenderer>();
+        Juice.Instance.LerpMaterialProptery(cubeRend.material, 1f, Juice.MaterialPropertyType.Color, "_Color", mColor == -1 ? mColorA : mColorB, 0f, true, GetCurrentCurve() , () =>
+        {
+            mColor = mColor * -1;
+            ColorCube();
         });
     }
 
@@ -134,6 +93,7 @@ public class Demo : MonoBehaviour {
     {
         int dir = (int)aDot.transform.localPosition.y / (int)Mathf.Abs(aDot.transform.localPosition.y);
         Juice.Instance.MoveTo(aDot, 2f, aDot.localPosition + new Vector3(0, -dir * mInstructionsPanel.rect.height * .5f * .80f, 0),true, GetCurrentCurve(), ()=> { MoveDot(aDot); });
+        Juice.Instance.LerpImageColor(aDot.GetComponent<Image>(), 1.9f, dir > 0 ? mColorA : mColorB, true);
     }
 
     public AnimationCurve GetCurrentCurve()
@@ -143,24 +103,26 @@ public class Demo : MonoBehaviour {
             switch (toggle.name)
             {
                 case "1":
-                    return Juice.Instance.Linear;
+                    return Juice.Curves.Smooth;
                 case "2":
-                    return Juice.Instance.Exponential;
+                    return Juice.Curves.Linear;
                 case "3":
-                    return Juice.Instance.Hop;
+                    return Juice.Curves.ExpoEaseIn;
                 case "4":
-                    return Juice.Instance.FastFalloff;
+                    return Juice.Curves.CircEaseIn;
                 case "5":
-                    return Juice.Instance.Elastic;
+                    return Juice.Curves.ElasticEaseOutIn;
                 case "6":
-                    return Juice.Instance.Bounce;
+                    return Juice.Curves.BounceEaseOut;
+                case "7":
+                    return Juice.Curves.Square;
                 case "8":
                     return customCurve;
                 default:
-                    return Juice.Instance.Linear;
+                    return Juice.Curves.Linear;
             }
         }
-        return Juice.Instance.Linear;
+        return Juice.Curves.Linear;
     }
 
     [SerializeField]
@@ -171,13 +133,13 @@ public class Demo : MonoBehaviour {
         mTweenPanelArrow.GetComponent<Button>().interactable = false;
         mCreditsPanelArrow.GetComponent<Button>().interactable = false;
 
-        Juice.Instance.Tween(mMiddlePanel, 1f,new Vector2(direction * mTweenPanel.rect.width,0),direction == -1 ? customCurve : Juice.Instance.Exponential,()=>{
+        Juice.Instance.Tween(mMiddlePanel, 1f,new Vector2(direction * mTweenPanel.rect.width,0), direction > 0 ? Juice.Curves.ExpoEaseOut : Juice.Curves.BounceEaseOut, ()=>{
             mTweenPanelArrow.GetComponent<Button>().interactable = true;
             mCreditsPanelArrow.GetComponent<Button>().interactable = true;
         });
 
-        Juice.Instance.Rotate(mTweenPanelArrow, .5f, new Vector3(0,0,180), direction, Juice.Instance.Exponential);
-        Juice.Instance.Rotate(mCreditsPanelArrow, .5f, new Vector3(0, 0, 180), direction, Juice.Instance.Exponential);
+        Juice.Instance.Rotate(mTweenPanelArrow, .5f, new Vector3(0,0,180), direction, Juice.Curves.ExpoEaseOut);
+        Juice.Instance.Rotate(mCreditsPanelArrow, .5f, new Vector3(0, 0, 180), direction, Juice.Curves.ExpoEaseOut);
     }
 
     public void OpenURL(string aUrl)
@@ -194,13 +156,13 @@ public class Demo : MonoBehaviour {
     {
         int direction = 0;
         direction = mInstructionsPanel.anchoredPosition.y > 1 ? -1 : 1;
-        Juice.Instance.Tween(mInstructionsPanel, 1f, new Vector2(0, direction * GetComponent<RectTransform>().rect.height), Juice.Instance.Exponential);
+        Juice.Instance.Tween(mInstructionsPanel, 1f, new Vector2(0, direction * GetComponent<RectTransform>().rect.height), Juice.Curves.ExpoEaseOut);
     }
 
     public void ToggleFAQsPanel()
     {
         int direction = 0;
         direction = mInstructionsPanel.anchoredPosition.y < -1 ? 1 : -1;
-        Juice.Instance.Tween(mInstructionsPanel, 1f, new Vector2(0, direction * GetComponent<RectTransform>().rect.height), Juice.Instance.Exponential);
+        Juice.Instance.Tween(mInstructionsPanel, 1f, new Vector2(0, direction * GetComponent<RectTransform>().rect.height), Juice.Curves.ExpoEaseOut);
     }
 }

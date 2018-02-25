@@ -1,8 +1,10 @@
-# Unity Juice UI Tools | Tested For Unity 2017.2
+# Unity Juice UI Tools | Tested For Unity 5.x - 2017+
+[Comprehensive API documentation can be found here](https://github.com/James9074/Unity-Juice-UI/wiki/API-Reference-Docs)
+
 <p align="center">
-  <img src="https://puu.sh/sLpgn/c27bd836cc.gif">
+  <img src="https://puu.sh/zvGnH/b382b6c3dd.gif">
   <br/><br/>
-  <span>A Juicy system for tweening Unity3D sprites, UI elements, and more. Tested in Unity 4.6 - 5.3</span>
+  <span>A Juicy system for tweening Unity3D sprites, UI elements, and more. Tested in Unity 5.x - 2017+</span>
 </p>
 
 How To Use
