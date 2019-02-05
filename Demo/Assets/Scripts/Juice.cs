@@ -1,4 +1,4 @@
-﻿/*     Juice Library (2018) - Created by James Thomas (https://wlan1.net)
+﻿/*     Juice Library (2019) - Created by James Thomas (https://wlan1.net)
 *  ===============================================================================
 *  This library is free to use, manipulate, and redistribute under the MIT License
 *  Please give me credit if you use it!
@@ -7,10 +7,10 @@
 *         Throw this script on a GameObject and reference it as such:
 *         Juice.Instance.[MethodName](....);
 *
-*  Let me know if it's useful or if you have questions: james9074@gmail.com
+*  Let me know if it's useful or if you have questions: james.thomas@panicvault.com
 *
-*  Version: 1.10 - Developed with Unity 5.3.5f1 - 2017.3.0f3
-*  Last Updated: Feb 17th, 2018
+*  Version: 1.10 - Developed with Unity 5.3.5f1 - 2018.3.0f2
+*  Last Updated: Feb 4th, 2019
 */
 
 using UnityEngine;
